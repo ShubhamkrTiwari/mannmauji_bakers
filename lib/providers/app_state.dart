@@ -1,10 +1,18 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import '../models/menu_item.dart';
 import '../models/menu_data.dart';
 import '../models/order_model.dart';
 
 class AppState with ChangeNotifier {
+  AppState() {
+    fetchCurrentLocation();
+  }
+
   // Theme Mode
   ThemeMode _themeMode = ThemeMode.system;
   ThemeMode get themeMode => _themeMode;
@@ -19,10 +27,22 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
-  // Location & 15-17 min Delivery
-  String _currentAddress = '42, Royal Bakery Avenue, City Center';
+  // User Profile Info
+  String _userName = 'Bakery Connoisseur';
+  String get userName => _userName;
+  String _userPhone = '+91 8401545654';
+  String get userPhone => _userPhone;
+
+  void updateUserProfile(String name, String phone) {
+    _userName = name;
+    _userPhone = phone;
+    notifyListeners();
+  }
+
+  // Location & 10-12 min Delivery
+  String _currentAddress = 'Gaur City 1, Greater Noida West, Noida Extension';
   String get currentAddress => _currentAddress;
-  String _deliveryEta = '15-17 mins';
+  String _deliveryEta = '10-12 MINS';
   String get deliveryEta => _deliveryEta;
   bool _isFetchingLocation = false;
   bool get isFetchingLocation => _isFetchingLocation;
@@ -32,11 +52,77 @@ class AppState with ChangeNotifier {
     _isFetchingLocation = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 1500)); // Simulate GPS lock
-    _currentAddress = '102, Sweet Avenue, Near Central Park';
-    _deliveryEta = '14-16 mins';
-    _isFetchingLocation = false;
-    notifyListeners();
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        _currentAddress = 'Gaur City 1, Greater Noida West, Noida Extension';
+        _deliveryEta = '10-12 MINS';
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          _currentAddress = 'Gaur City 1, Greater Noida West, Noida Extension';
+          _deliveryEta = '10-12 MINS';
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        _currentAddress = 'Gaur City 1, Greater Noida West, Noida Extension';
+        _deliveryEta = '10-12 MINS';
+        return;
+      }
+
+      // Fetch High Precision GPS Position (Best Accuracy)
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.best,
+          distanceFilter: 10,
+        ),
+      );
+
+      // Reverse Geocode GPS Lat/Long to exact Placemark
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        List<String> addressParts = [];
+
+        if (place.name != null && place.name!.isNotEmpty && place.name != place.locality) {
+          addressParts.add(place.name!);
+        }
+        if (place.street != null && place.street!.isNotEmpty && !addressParts.contains(place.street)) {
+          addressParts.add(place.street!);
+        }
+        if (place.subLocality != null && place.subLocality!.isNotEmpty) {
+          addressParts.add(place.subLocality!);
+        }
+        if (place.locality != null && place.locality!.isNotEmpty) {
+          addressParts.add(place.locality!);
+        }
+        if (place.postalCode != null && place.postalCode!.isNotEmpty) {
+          addressParts.add(place.postalCode!);
+        }
+
+        if (addressParts.isNotEmpty) {
+          _currentAddress = addressParts.join(', ');
+          _deliveryEta = '10-12 MINS';
+        }
+      }
+    } catch (e) {
+      // Fallback network lookup or Gaur City default
+      _currentAddress = 'Gaur City 1, Greater Noida West, Noida Extension';
+      _deliveryEta = '10-12 MINS';
+    } finally {
+      _isFetchingLocation = false;
+      notifyListeners();
+    }
   }
 
   void setAddress(String address, String eta) {

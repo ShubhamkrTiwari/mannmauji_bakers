@@ -29,7 +29,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppTheme.buildGradientAppBar(
+        context: context,
         title: const Text('Checkout & Scheduling'),
       ),
       body: SingleChildScrollView(
@@ -39,7 +40,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           children: [
             const Text(
               'Select Order Type',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
             const SizedBox(height: 12),
             Row(
@@ -49,15 +50,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     child: ChoiceChip(
-                      label: Center(child: Text(type)),
+                      label: Center(child: Text(type, style: TextStyle(fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500))),
                       selected: isSelected,
                       onSelected: (selected) {
                         setState(() => _orderType = type);
                       },
-                      selectedColor: AppColors.navyPrimary,
+                      selectedColor: AppColors.zeptoPurple,
                       labelStyle: TextStyle(
-                        color: isSelected ? AppColors.goldLight : null,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected ? Colors.white : Colors.grey[700],
                       ),
                     ),
                   ),
@@ -65,26 +65,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               }).toList(),
             ),
 
-            // Dine-in group ordering helper (Part 2 feature 6)
             if (_orderType == 'Dine-in') ...[
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.goldAccent.withOpacity(0.15),
+                  color: AppColors.zeptoGreenLight,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.goldAccent),
+                  border: Border.all(color: AppColors.zeptoGreen),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.group, color: AppColors.goldAccent),
+                    const Icon(Icons.group, color: AppColors.zeptoGreen),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Table Group Order', style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text('Share code #MM-TABLE-7 with friends to join this cart!', style: TextStyle(fontSize: 12)),
+                          Text('Table Group Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          Text('Share code #MM-TABLE-7 with friends to join this cart!', style: TextStyle(fontSize: 11)),
                         ],
                       ),
                     ),
@@ -94,7 +93,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           const SnackBar(content: Text('Table sharing code copied to clipboard! 📋')),
                         );
                       },
-                      child: const Text('Share', style: TextStyle(color: AppColors.goldAccent)),
+                      child: const Text('Share', style: TextStyle(color: AppColors.zeptoGreen, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -107,11 +106,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               children: [
                 const Text(
                   'Scheduled / Pre-order',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 Switch(
                   value: _isScheduled,
-                  activeColor: AppColors.goldAccent,
+                  activeColor: AppColors.zeptoGreen,
                   onChanged: (val) => setState(() => _isScheduled = val),
                 ),
               ],
@@ -129,14 +128,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 children: timeSlots.map((slot) {
                   final isSelected = _selectedTimeSlot == slot;
                   return ChoiceChip(
-                    label: Text(slot),
+                    label: Text(slot, style: const TextStyle(fontSize: 12)),
                     selected: isSelected,
                     onSelected: (selected) {
                       setState(() => _selectedTimeSlot = slot);
                     },
-                    selectedColor: AppColors.goldAccent,
+                    selectedColor: AppColors.zeptoGreenLight,
+                    side: BorderSide(color: isSelected ? AppColors.zeptoGreen : AppColors.zeptoCardBorder),
                     labelStyle: TextStyle(
-                      color: isSelected && !isDark ? AppColors.navyPrimary : null,
+                      color: isSelected ? AppColors.zeptoGreen : Colors.grey[800],
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   );
@@ -147,7 +147,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 24),
             const Text(
               'Payment Method',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
             const SizedBox(height: 12),
             Container(
@@ -155,21 +155,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               decoration: BoxDecoration(
                 color: isDark ? AppColors.darkSurface : Colors.white,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: isDark ? Colors.white10 : AppColors.zeptoCardBorder),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.payment, color: AppColors.goldAccent),
+                  Icon(Icons.payment, color: AppColors.zeptoPurple),
                   SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Online Payment / UPI / Cards', style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('Google Pay, PhonePe, Paytm, Credit/Debit cards', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        Text('Online Payment / UPI / Cards', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        Text('Google Pay, PhonePe, Paytm, Credit/Debit cards', style: TextStyle(fontSize: 11, color: Colors.grey)),
                       ],
                     ),
                   ),
-                  Icon(Icons.check_circle, color: AppColors.successGreen),
+                  Icon(Icons.check_circle, color: AppColors.zeptoGreen),
                 ],
               ),
             ),
@@ -177,20 +178,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkSurface : Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(0.06),
               blurRadius: 10,
-              offset: const Offset(0, -5),
+              offset: const Offset(0, -4),
             ),
           ],
         ),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            backgroundColor: AppColors.zeptoGreen,
+            minimumSize: const Size(double.infinity, 52),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           onPressed: () {
             appState.placeOrder(
@@ -204,7 +207,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           },
           child: Text(
             'Place Order • ₹${appState.cartTotal.toStringAsFixed(0)}',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
       ),

@@ -34,8 +34,8 @@ class BakeryImagePlaceholder extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isDark
-              ? [AppColors.darkSurface, AppColors.navySecondary]
-              : [AppColors.goldLight.withOpacity(0.5), AppColors.goldAccent.withOpacity(0.3)],
+              ? [AppColors.darkSurface, AppColors.darkCard]
+              : [const Color(0xFFF7F0EA), const Color(0xFFEFE5DC)],
         ),
       ),
       child: Stack(
@@ -48,7 +48,7 @@ class BakeryImagePlaceholder extends StatelessWidget {
               emoji,
               style: TextStyle(
                 fontSize: 70,
-                color: (isDark ? AppColors.goldAccent : AppColors.navyPrimary).withOpacity(0.12),
+                color: (isDark ? Colors.white : AppColors.zeptoPurple).withValues(alpha: 0.12),
               ),
             ),
           ),
@@ -70,7 +70,7 @@ class BakeryImagePlaceholder extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : AppColors.navyPrimary,
+                    color: isDark ? Colors.white : AppColors.zeptoTextPrimary,
                   ),
                 ),
               ),

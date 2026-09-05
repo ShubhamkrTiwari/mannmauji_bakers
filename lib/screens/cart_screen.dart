@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../theme/app_theme.dart';
@@ -7,16 +8,22 @@ import '../models/menu_item.dart';
 import '../models/menu_data.dart';
 import 'checkout_screen.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  int _selectedTip = 20;
 
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Smart recommendations rule-based logic (Part 2 feature 3):
-    // If bakery item in cart suggests a cafe drink, and vice versa.
+    // Smart recommendations rule-based logic
     bool hasBakery = appState.cartItems.any((ci) => !ci.menuItem.category.contains('Coffee'));
     bool hasDrink = appState.cartItems.any((ci) => ci.menuItem.category.contains('Coffee'));
     
@@ -29,9 +36,12 @@ class CartScreen extends StatelessWidget {
       recommendations = menuItems.take(3).toList();
     }
 
+    final grandTotal = appState.cartTotal + _selectedTip;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your Sweet Cart'),
+      appBar: AppTheme.buildGradientAppBar(
+        context: context,
+        title: const Text('Your Cart'),
       ),
       body: appState.cartItems.isEmpty
           ? Center(
@@ -40,17 +50,24 @@ class CartScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.shopping_bag_outlined, size: 80, color: AppColors.goldAccent),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Your cart is feeling a bit lonely!',
-                      style: Theme.of(context).textTheme.headlineSmall,
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: const BoxDecoration(
+                        color: AppColors.zeptoGreenLight,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.shopping_bag_outlined, size: 64, color: AppColors.zeptoGreen),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Your cart is empty',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Let’s bake up some happiness. Explore our freshly baked cheesecakes, brownies & warm waffles!',
-                      style: TextStyle(color: Colors.grey[600], height: 1.4),
+                      'Explore our freshly baked cheesecakes, brownies & warm beverages!',
+                      style: TextStyle(color: Colors.grey[600], height: 1.4, fontSize: 13),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -59,6 +76,31 @@ class CartScreen extends StatelessWidget {
             )
           : Column(
               children: [
+                // Delivery ETA Banner
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  color: AppColors.zeptoGreenLight,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.bolt, color: AppColors.zeptoGreen, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Delivery in ${appState.deliveryEta}',
+                        style: const TextStyle(
+                          color: AppColors.zeptoGreen,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const Spacer(),
+                      const Text(
+                        'Fastest Delivery ⚡',
+                        style: TextStyle(fontSize: 11, color: AppColors.zeptoGreen, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+
                 Expanded(
                   child: ListView(
                     padding: const EdgeInsets.all(16),
@@ -71,18 +113,12 @@ class CartScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: isDark ? AppColors.darkSurface : Colors.white,
                             borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                            border: Border.all(color: isDark ? Colors.white10 : AppColors.zeptoCardBorder),
                           ),
                           child: Row(
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(10),
                                 child: SizedBox(
                                   width: 60,
                                   height: 60,
@@ -101,7 +137,7 @@ class CartScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       cartItem.menuItem.name,
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
@@ -111,57 +147,78 @@ class CartScreen extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.remove_circle_outline, size: 20),
-                                    onPressed: () => appState.updateQuantity(cartItem, -1),
-                                  ),
-                                  Text(
-                                    '${cartItem.quantity}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.add_circle_outline, size: 20),
-                                    onPressed: () => appState.updateQuantity(cartItem, 1),
-                                  ),
-                                ],
+
+                              // Quantity Incrementer
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.zeptoGreen,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        HapticFeedback.lightImpact();
+                                        appState.updateQuantity(cartItem, -1);
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                        child: Icon(Icons.remove, size: 14, color: Colors.white),
+                                      ),
+                                    ),
+                                    Text(
+                                      '${cartItem.quantity}',
+                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        HapticFeedback.lightImpact();
+                                        appState.updateQuantity(cartItem, 1);
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                        child: Icon(Icons.add, size: 14, color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         );
                       }),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
-                      // Smart Recommendations Row ("Pairs well with this")
+                      // Smart Recommendations Row ("Frequently Bought Together")
                       if (recommendations.isNotEmpty) ...[
                         const Text(
-                          '💡 Pairs Well With This',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          'Frequently Bought Together',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
                         SizedBox(
-                          height: 140,
+                          height: 130,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: recommendations.length,
                             itemBuilder: (context, index) {
                               final rec = recommendations[index];
                               return Container(
-                                width: 120,
+                                width: 125,
                                 margin: const EdgeInsets.only(right: 12),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color: isDark ? AppColors.darkSurface : Colors.white,
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: AppColors.goldAccent.withOpacity(0.4)),
+                                  border: Border.all(color: AppColors.zeptoCardBorder),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Expanded(
                                       child: ClipRRect(
-                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                                        borderRadius: BorderRadius.circular(8),
                                         child: BakeryImagePlaceholder(
                                           heroTag: '',
                                           title: '',
@@ -171,33 +228,28 @@ class CartScreen extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            rec.name,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                '₹${rec.price.toStringAsFixed(0)}',
-                                                style: const TextStyle(fontSize: 11),
-                                              ),
-                                              GestureDetector(
-                                                onTap: () => appState.addToCart(rec),
-                                                child: const Icon(Icons.add_circle, size: 18, color: AppColors.goldAccent),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      rec.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          '₹${rec.price.toStringAsFixed(0)}',
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            HapticFeedback.lightImpact();
+                                            appState.addToCart(rec);
+                                          },
+                                          child: const Text('+ ADD', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.zeptoGreen)),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -205,29 +257,95 @@ class CartScreen extends StatelessWidget {
                             },
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 16),
                       ],
 
-                      // Bill Summary
+                      // Zepto Delivery Partner Tip Option
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.darkSurface : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: isDark ? Colors.white10 : AppColors.zeptoCardBorder),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Row(
+                              children: [
+                                Icon(Icons.two_wheeler, color: AppColors.zeptoPurple, size: 20),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Tip Your Delivery Partner',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '100% of the tip goes to your delivery executive.',
+                              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [20, 30, 50, 0].map((tipVal) {
+                                final isSelected = _selectedTip == tipVal;
+                                return Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                    child: ChoiceChip(
+                                      label: Center(
+                                        child: Text(
+                                          tipVal == 0 ? 'No Tip' : '₹$tipVal',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                      selected: isSelected,
+                                      onSelected: (selected) {
+                                        HapticFeedback.lightImpact();
+                                        setState(() => _selectedTip = selected ? tipVal : 0);
+                                      },
+                                      selectedColor: AppColors.zeptoGreenLight,
+                                      side: BorderSide(
+                                        color: isSelected ? AppColors.zeptoGreen : AppColors.zeptoCardBorder,
+                                      ),
+                                      labelStyle: TextStyle(
+                                        color: isSelected ? AppColors.zeptoGreen : Colors.grey[800],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Bill Summary Card
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: isDark ? AppColors.darkSurface : Colors.white,
                           borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: isDark ? Colors.white10 : AppColors.zeptoCardBorder),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'Bill Summary',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              'Bill Details',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                             ),
-                            const Divider(height: 24),
+                            const Divider(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Subtotal'),
-                                Text('₹${appState.cartSubtotal.toStringAsFixed(0)}'),
+                                const Text('Item Total', style: TextStyle(fontSize: 13)),
+                                Text('₹${appState.cartSubtotal.toStringAsFixed(0)}', style: const TextStyle(fontSize: 13)),
                               ],
                             ),
                             if (appState.cartDiscount > 0) ...[
@@ -235,8 +353,8 @@ class CartScreen extends StatelessWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Offer Discount', style: TextStyle(color: AppColors.successGreen, fontWeight: FontWeight.bold)),
-                                  Text('-₹${appState.cartDiscount.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.successGreen, fontWeight: FontWeight.bold)),
+                                  const Text('Discount Savings', style: TextStyle(color: AppColors.zeptoGreen, fontWeight: FontWeight.bold, fontSize: 13)),
+                                  Text('-₹${appState.cartDiscount.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.zeptoGreen, fontWeight: FontWeight.bold, fontSize: 13)),
                                 ],
                               ),
                             ],
@@ -244,17 +362,55 @@ class CartScreen extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Delivery & Packaging'),
-                                Text('₹${appState.deliveryFee.toStringAsFixed(0)}'),
+                                const Text('Delivery Fee', style: TextStyle(fontSize: 13)),
+                                Text('₹${appState.deliveryFee.toStringAsFixed(0)}', style: const TextStyle(fontSize: 13)),
                               ],
                             ),
-                            const Divider(height: 24),
+                            if (_selectedTip > 0) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Delivery Partner Tip', style: TextStyle(fontSize: 13)),
+                                  Text('₹$_selectedTip', style: const TextStyle(fontSize: 13)),
+                                ],
+                              ),
+                            ],
+                            const Divider(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Total Amount', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                Text('₹${appState.cartTotal.toStringAsFixed(0)}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: isDark ? AppColors.goldLight : AppColors.navyPrimary)),
+                                const Text('To Pay', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                Text(
+                                  '₹${grandTotal.toStringAsFixed(0)}',
+                                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17, color: AppColors.zeptoGreen),
+                                ),
                               ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Zepto Green Savings Banner
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: AppColors.zeptoGreenLight,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.zeptoGreen.withValues(alpha: 0.4)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Text('🎉', style: TextStyle(fontSize: 18)),
+                            const SizedBox(width: 8),
+                            Text(
+                              'You saved ₹${(appState.cartDiscount + 20).toStringAsFixed(0)} on this order!',
+                              style: const TextStyle(
+                                color: AppColors.zeptoGreen,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
                           ],
                         ),
@@ -263,22 +419,24 @@ class CartScreen extends StatelessWidget {
                   ),
                 ),
 
-                // Checkout Button
+                // Sticky Bottom Pay Bar
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: isDark ? AppColors.darkSurface : Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.06),
                         blurRadius: 10,
-                        offset: const Offset(0, -5),
+                        offset: const Offset(0, -4),
                       ),
                     ],
                   ),
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: AppColors.zeptoGreen,
+                      minimumSize: const Size(double.infinity, 52),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     onPressed: () {
                       Navigator.push(
@@ -287,14 +445,29 @@ class CartScreen extends StatelessWidget {
                       );
                     },
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Proceed to Checkout • ₹${appState.cartTotal.toStringAsFixed(0)}',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '₹${grandTotal.toStringAsFixed(0)}',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white),
+                            ),
+                            const Text(
+                              'TOTAL AMOUNT',
+                              style: TextStyle(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.w600),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.arrow_forward, size: 18),
+                        const Row(
+                          children: [
+                            Text('Proceed to Checkout', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
+                            SizedBox(width: 6),
+                            Icon(Icons.arrow_forward, size: 18, color: Colors.white),
+                          ],
+                        ),
                       ],
                     ),
                   ),

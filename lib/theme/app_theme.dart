@@ -3,76 +3,122 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Primary luxury bakery palette
-  static const Color navyPrimary = Color(0xFF0D1B2A);
-  static const Color navySecondary = Color(0xFF1B263B);
-  static const Color goldAccent = Color(0xFFD4AF37);
-  static const Color goldLight = Color(0xFFF4E2BB);
-  static const Color creamBackground = Color(0xFFFAF3E0);
-  static const Color warmBrown = Color(0xFF8D5B4C);
-  static const Color softRed = Color(0xFFB83232);
-  static const Color successGreen = Color(0xFF2D6A4F);
+  // Warm Artisanal Bakery Palette (Light Brown + Creamy Light-White)
+  static const Color zeptoPurple = Color(0xFF5D3A29);       // Rich Warm Cocoa/Light Brown
+  static const Color zeptoPurpleDark = Color(0xFF3E2317);   // Deep Roasted Espresso
+  static const Color zeptoPurpleLight = Color(0xFF8B5A3C);  // Warm Caramel Light Brown
+  static const Color zeptoGreen = Color(0xFF1E7B4A);        // Gourmet Forest Green for ADD & ETA
+  static const Color zeptoGreenLight = Color(0xFFEAF4EE);   // Crisp Light Green Tag / ADD BG
+  static const Color zeptoPink = Color(0xFFE05A47);         // Warm Coral Offer Tag
+  static const Color zeptoBackground = Color(0xFFFAF6F0);   // Soft Creamy Light-White Background
+  static const Color zeptoCardBorder = Color(0xFFE8DFD8);   // Subtle warm off-white border
+  static const Color zeptoTextPrimary = Color(0xFF2C1A11);  // Deep Warm Espresso Text
+  static const Color zeptoTextSecondary = Color(0xFF7A685D);// Subtitle / Warm Gray Text
+
+  // Light Brown & Cream Gradients
+  static const LinearGradient primaryGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF8B5A3C), Color(0xFF5D3A29)],
+  );
+
+  static const LinearGradient headerGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFF6C3B2A), Color(0xFF3E2317)],
+  );
+
+  static const LinearGradient greenGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF2D6A4F), Color(0xFF1E7B4A)],
+  );
+
+  static const LinearGradient lightBgGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFFFFDF9), Color(0xFFFAF6F0)],
+  );
+
+  // Legacy Aliases
+  static const Color navyPrimary = Color(0xFF5D3A29);
+  static const Color navySecondary = Color(0xFF3E2317);
+  static const Color goldAccent = Color(0xFF1E7B4A);
+  static const Color goldLight = Color(0xFFEAF4EE);
+  static const Color creamBackground = Color(0xFFFAF6F0);
+  static const Color warmBrown = Color(0xFF7A685D);
+  static const Color softRed = Color(0xFFE05A47);
+  static const Color successGreen = Color(0xFF1E7B4A);
   
   // Dark mode colors
-  static const Color darkBackground = Color(0xFF121212);
-  static const Color darkSurface = Color(0xFF1E1E1E);
-  static const Color darkCard = Color(0xFF252525);
+  static const Color darkBackground = Color(0xFF1A1412);
+  static const Color darkSurface = Color(0xFF261D1A);
+  static const Color darkCard = Color(0xFF302420);
 }
 
 class AppTheme {
+  // Standardized Font Family: Plus Jakarta Sans
+  static String get fontFamily => GoogleFonts.plusJakartaSans().fontFamily!;
+
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    scaffoldBackgroundColor: AppColors.creamBackground,
+    scaffoldBackgroundColor: AppColors.zeptoBackground,
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.navyPrimary,
-      primary: AppColors.navyPrimary,
-      secondary: AppColors.goldAccent,
+      seedColor: AppColors.zeptoPurple,
+      primary: AppColors.zeptoPurple,
+      secondary: AppColors.zeptoGreen,
       surface: Colors.white,
       brightness: Brightness.light,
     ),
-    textTheme: GoogleFonts.interTextTheme(
+    textTheme: GoogleFonts.plusJakartaSansTextTheme(
       ThemeData(brightness: Brightness.light).textTheme,
     ).copyWith(
-      displayLarge: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: AppColors.navyPrimary),
-      displayMedium: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: AppColors.navyPrimary),
-      displaySmall: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: AppColors.navyPrimary),
-      headlineLarge: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: AppColors.navyPrimary),
-      headlineMedium: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: AppColors.navyPrimary),
-      headlineSmall: GoogleFonts.fraunces(fontWeight: FontWeight.w600, color: AppColors.navyPrimary),
-      titleLarge: GoogleFonts.fraunces(fontWeight: FontWeight.w600, color: AppColors.navyPrimary),
-      titleMedium: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppColors.navyPrimary),
-      titleSmall: GoogleFonts.inter(fontWeight: FontWeight.w500, color: AppColors.navyPrimary),
-      bodyLarge: GoogleFonts.inter(color: AppColors.navyPrimary),
-      bodyMedium: GoogleFonts.inter(color: AppColors.navySecondary),
-      bodySmall: GoogleFonts.inter(color: Colors.grey[700]),
+      displayLarge: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppColors.zeptoTextPrimary, letterSpacing: -0.5),
+      displayMedium: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppColors.zeptoTextPrimary, letterSpacing: -0.5),
+      displaySmall: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppColors.zeptoTextPrimary),
+      headlineLarge: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppColors.zeptoTextPrimary, letterSpacing: -0.3),
+      headlineMedium: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppColors.zeptoTextPrimary),
+      headlineSmall: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppColors.zeptoTextPrimary),
+      titleLarge: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppColors.zeptoTextPrimary, fontSize: 18),
+      titleMedium: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, color: AppColors.zeptoTextPrimary, fontSize: 15),
+      titleSmall: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: AppColors.zeptoTextPrimary, fontSize: 13),
+      bodyLarge: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500, color: AppColors.zeptoTextPrimary, fontSize: 14),
+      bodyMedium: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w400, color: AppColors.zeptoTextSecondary, fontSize: 13),
+      bodySmall: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w400, color: AppColors.zeptoTextSecondary, fontSize: 11),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.navyPrimary,
-      foregroundColor: AppColors.goldLight,
+      backgroundColor: AppColors.zeptoPurple,
+      foregroundColor: Colors.white,
       elevation: 0,
-      centerTitle: true,
-      titleTextStyle: GoogleFonts.fraunces(
-        fontSize: 22,
+      centerTitle: false,
+      titleTextStyle: GoogleFonts.plusJakartaSans(
+        fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: AppColors.goldLight,
+        color: Colors.white,
+        letterSpacing: -0.2,
       ),
     ),
     cardTheme: CardThemeData(
       color: Colors.white,
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: AppColors.zeptoCardBorder, width: 1),
+      ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.navyPrimary,
-        foregroundColor: AppColors.goldLight,
+        backgroundColor: AppColors.zeptoGreen,
+        foregroundColor: Colors.white,
+        elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        textStyle: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     ),
-    pageTransitionsTheme: PageTransitionsTheme(
+    pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
         TargetPlatform.android: ZoomPageTransitionsBuilder(),
         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
@@ -85,55 +131,61 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColors.darkBackground,
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.goldAccent,
-      primary: AppColors.goldAccent,
-      secondary: AppColors.goldLight,
+      seedColor: AppColors.zeptoPurpleLight,
+      primary: AppColors.zeptoPurpleLight,
+      secondary: AppColors.zeptoGreen,
       surface: AppColors.darkSurface,
       brightness: Brightness.dark,
     ),
-    textTheme: GoogleFonts.interTextTheme(
+    textTheme: GoogleFonts.plusJakartaSansTextTheme(
       ThemeData(brightness: Brightness.dark).textTheme,
     ).copyWith(
-      displayLarge: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: AppColors.goldLight),
-      displayMedium: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: AppColors.goldLight),
-      displaySmall: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: AppColors.goldLight),
-      headlineLarge: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: AppColors.goldLight),
-      headlineMedium: GoogleFonts.fraunces(fontWeight: FontWeight.bold, color: AppColors.goldLight),
-      headlineSmall: GoogleFonts.fraunces(fontWeight: FontWeight.w600, color: AppColors.goldLight),
-      titleLarge: GoogleFonts.fraunces(fontWeight: FontWeight.w600, color: AppColors.goldLight),
-      titleMedium: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white),
-      titleSmall: GoogleFonts.inter(fontWeight: FontWeight.w500, color: Colors.grey[300]),
-      bodyLarge: GoogleFonts.inter(color: Colors.white),
-      bodyMedium: GoogleFonts.inter(color: Colors.grey[300]),
-      bodySmall: GoogleFonts.inter(color: Colors.grey[400]),
+      displayLarge: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5),
+      displayMedium: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5),
+      displaySmall: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: Colors.white),
+      headlineLarge: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.3),
+      headlineMedium: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: Colors.white),
+      headlineSmall: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: Colors.white),
+      titleLarge: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+      titleMedium: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 15),
+      titleSmall: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: Colors.grey[300], fontSize: 13),
+      bodyLarge: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500, color: Colors.white, fontSize: 14),
+      bodyMedium: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w400, color: Colors.grey[400], fontSize: 13),
+      bodySmall: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w400, color: Colors.grey[500], fontSize: 11),
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.darkSurface,
-      foregroundColor: AppColors.goldLight,
+      foregroundColor: Colors.white,
       elevation: 0,
-      centerTitle: true,
-      titleTextStyle: GoogleFonts.fraunces(
-        fontSize: 22,
+      centerTitle: false,
+      titleTextStyle: GoogleFonts.plusJakartaSans(
+        fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: AppColors.goldLight,
+        color: Colors.white,
+        letterSpacing: -0.2,
       ),
     ),
     cardTheme: CardThemeData(
       color: AppColors.darkCard,
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1),
+      ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.goldAccent,
-        foregroundColor: AppColors.navyPrimary,
+        backgroundColor: AppColors.zeptoGreen,
+        foregroundColor: Colors.white,
+        elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        textStyle: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     ),
-    pageTransitionsTheme: PageTransitionsTheme(
+    pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
         TargetPlatform.android: ZoomPageTransitionsBuilder(),
         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
@@ -141,6 +193,29 @@ class AppTheme {
       },
     ),
   );
+
+  static PreferredSizeWidget buildGradientAppBar({
+    required BuildContext context,
+    required Widget title,
+    List<Widget>? actions,
+    bool automaticallyImplyLeading = true,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return AppBar(
+      title: title,
+      actions: actions,
+      automaticallyImplyLeading: automaticallyImplyLeading,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: isDark
+              ? const LinearGradient(colors: [AppColors.darkSurface, AppColors.darkSurface])
+              : AppColors.primaryGradient,
+        ),
+      ),
+    );
+  }
 }
 
 // Custom smooth page route builder with fade + slide
